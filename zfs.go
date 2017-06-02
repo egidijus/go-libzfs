@@ -46,7 +46,7 @@ type Dataset struct {
 func (d *Dataset) openChildren() (err error) {
 	var list C.dataset_list_ptr
 	d.Children = make([]Dataset, 0, 5)
-	errcode := C.dataset_list_children(d.list.zh, unsafe.Pointer(&list))
+	errcode := C.dataset_list_children(d.list.zh, &list)
 	for list != nil {
 		dataset := Dataset{list: list}
 		dataset.Type = DatasetType(C.zfs_get_type(dataset.list.zh))
@@ -74,7 +74,7 @@ func (d *Dataset) openChildren() (err error) {
 // (file-systems, volumes or snapshots).
 func DatasetOpenAll() (datasets []Dataset, err error) {
 	var dataset Dataset
-	errcode := C.dataset_list_root(libzfsHandle, unsafe.Pointer(&dataset.list))
+	errcode := C.dataset_list_root(libzfsHandle, &dataset.list)
 	for dataset.list != nil {
 		dataset.Type = DatasetType(C.zfs_get_type(dataset.list.zh))
 		err = dataset.ReloadProperties()
@@ -131,7 +131,7 @@ func DatasetOpen(path string) (d Dataset, err error) {
 func datasetPropertiesTonvlist(props map[Prop]Property) (
 	cprops C.nvlist_ptr, err error) {
 	// convert properties to nvlist C type
-	r := C.nvlist_alloc(unsafe.Pointer(&cprops), C.NV_UNIQUE_NAME, 0)
+	r := C.nvlist_alloc((**C.struct_nvlist)(&cprops), C.NV_UNIQUE_NAME, 0)
 	if r != 0 {
 		err = errors.New("Failed to allocate properties")
 		return
@@ -443,7 +443,7 @@ func (d *Dataset) IsMounted() (mounted bool, where string) {
 	if d.list == nil {
 		return false, ""
 	}
-	m := C.zfs_is_mounted(d.list.zh, unsafe.Pointer(&cw))
+	m := C.zfs_is_mounted(d.list.zh, (**C.char)(unsafe.Pointer(&cw)))
 	// defer C.free(cw)
 	if m != 0 {
 		return true, C.GoString(cw)

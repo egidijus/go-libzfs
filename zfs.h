@@ -18,8 +18,8 @@ dataset_list_t *create_dataset_list_item();
 void dataset_list_close(dataset_list_t *list);
 void dataset_list_free(dataset_list_t *list);
 
-int dataset_list_root(libzfs_handle_t *libzfs, dataset_list_t **first);
-int dataset_list_children(zfs_handle_t *zfs, dataset_list_t **first);
+int dataset_list_root(libzfs_handle_t *libzfs, dataset_list_ptr *first);
+int dataset_list_children(zfs_handle_t *zfs, dataset_list_ptr *first);
 dataset_list_t *dataset_next(dataset_list_t *dataset);
 
 int read_dataset_property(zfs_handle_t *zh, property_list_t *list, int prop);
